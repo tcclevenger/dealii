@@ -194,6 +194,19 @@ void MGTransferPrebuilt<VectorType>::build_matrices
           {
             cell->get_mg_dof_indices (dof_indices_parent);
 
+            // Replace any indices of identity constrained dofs with the
+            // indices of the dofs in which they are constrained
+            for (unsigned int i=0; i<dof_indices_parent.size(); ++i)
+              if (this->mg_constrained_dofs->get_level_constraint_matrix(level).
+                  is_identity_constrained(dof_indices_parent[i]))
+                {
+                  Assert(this->mg_constrained_dofs->get_level_constraint_matrix(level).
+                         get_constraint_entries(dof_indices_parent[i])->size() == 1,
+                         ExcInternalError());
+                  dof_indices_parent[i] = this->mg_constrained_dofs->get_level_constraint_matrix(level).
+                                          get_constraint_entries(dof_indices_parent[i])->front().first;
+                }
+
             Assert(cell->n_children()==GeometryInfo<dim>::max_children_per_cell,
                    ExcNotImplemented());
             for (unsigned int child=0; child<cell->n_children(); ++child)
@@ -206,6 +219,19 @@ void MGTransferPrebuilt<VectorType>::build_matrices
                 Assert (prolongation.n() != 0, ExcNoProlongation());
 
                 cell->child(child)->get_mg_dof_indices (dof_indices_child);
+
+                // Replace any indices of identity constrained dofs with the
+                // indices of the dofs in which they are constrained
+                for (unsigned int i=0; i<dof_indices_child.size(); ++i)
+                  if (this->mg_constrained_dofs->get_level_constraint_matrix(level+1).
+                      is_identity_constrained(dof_indices_child[i]))
+                    {
+                      Assert(this->mg_constrained_dofs->get_level_constraint_matrix(level+1).
+                             get_constraint_entries(dof_indices_child[i])->size() == 1,
+                             ExcInternalError());
+                      dof_indices_child[i] = this->mg_constrained_dofs->get_level_constraint_matrix(level+1).
+                                             get_constraint_entries(dof_indices_child[i])->front().first;
+                    }
 
                 // now tag the entries in the
                 // matrix which will be used
@@ -240,6 +266,20 @@ void MGTransferPrebuilt<VectorType>::build_matrices
           {
             cell->get_mg_dof_indices (dof_indices_parent);
 
+            // Replace any indices of identity constrained dofs with the
+            // indices of the dofs in which they are constrained
+            for (unsigned int i=0; i<dof_indices_parent.size(); ++i)
+              if (this->mg_constrained_dofs->get_level_constraint_matrix(level).
+                  is_identity_constrained(dof_indices_parent[i]))
+                {
+                  Assert(this->mg_constrained_dofs->get_level_constraint_matrix(level).
+                         get_constraint_entries(dof_indices_parent[i])->size() == 1,
+                         ExcInternalError());
+                  dof_indices_parent[i] = this->mg_constrained_dofs->get_level_constraint_matrix(level).
+                                          get_constraint_entries(dof_indices_parent[i])->front().first;
+                  \                
+                }
+
             Assert(cell->n_children()==GeometryInfo<dim>::max_children_per_cell,
                    ExcNotImplemented());
             for (unsigned int child=0; child<cell->n_children(); ++child)
@@ -257,6 +297,19 @@ void MGTransferPrebuilt<VectorType>::build_matrices
                         prolongation(i,j) = 0.;
 
                 cell->child(child)->get_mg_dof_indices (dof_indices_child);
+
+                // Replace any indices of identity constrained dofs with the
+                // indices of the dofs in which they are constrained
+                for (unsigned int i=0; i<dof_indices_child.size(); ++i)
+                  if (this->mg_constrained_dofs->get_level_constraint_matrix(level+1).
+                      is_identity_constrained(dof_indices_child[i]))
+                    {
+                      Assert(this->mg_constrained_dofs->get_level_constraint_matrix(level+1).
+                             get_constraint_entries(dof_indices_child[i])->size() == 1,
+                             ExcInternalError());
+                      dof_indices_child[i] = this->mg_constrained_dofs->get_level_constraint_matrix(level+1).
+                                             get_constraint_entries(dof_indices_child[i])->front().first;
+                    }
 
                 // now set the entries in the matrix
                 for (unsigned int i=0; i<dofs_per_cell; ++i)

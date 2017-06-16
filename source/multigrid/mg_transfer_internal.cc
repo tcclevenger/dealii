@@ -562,6 +562,19 @@ namespace internal
                     continue;
                   cell->child(c)->get_mg_dof_indices(local_dof_indices);
 
+                  // Replace any indices of identity constrained dofs with the
+                  // indices of the dofs in which they are constrained
+                  for (unsigned int i=0; i<local_dof_indices.size(); ++i)
+                    if (mg_constrained_dofs->get_level_constraint_matrix(level).
+                        is_identity_constrained(local_dof_indices[i]))
+                      {
+                        Assert(mg_constrained_dofs->get_level_constraint_matrix(level).
+                               get_constraint_entries(local_dof_indices[i])->size() == 1,
+                               ExcInternalError());
+                        local_dof_indices[i] = mg_constrained_dofs->get_level_constraint_matrix(level).
+                                               get_constraint_entries(local_dof_indices[i])->front().first;
+                      }
+
                   const IndexSet &owned_level_dofs = mg_dof.locally_owned_mg_dofs(level);
                   for (unsigned int i=0; i<local_dof_indices.size(); ++i)
                     if (!owned_level_dofs.is_element(local_dof_indices[i]))
@@ -617,6 +630,19 @@ namespace internal
               if (level == 1 && !cell_is_remote)
                 {
                   cell->get_mg_dof_indices(local_dof_indices);
+
+                  // Replace any indices of identity constrained dofs with the
+                  // indices of the dofs in which they are constrained
+                  //for (unsigned int i=0; i<local_dof_indices.size(); ++i)
+                  //  if (mg_constrained_dofs->get_level_constraint_matrix(level-1).
+                  //     is_identity_constrained(local_dof_indices[i]))
+                  //    {
+                  //      Assert(mg_constrained_dofs->get_level_constraint_matrix(level-1).
+                  //             get_constraint_entries(local_dof_indices[i])->size() == 1,
+                  //             ExcInternalError());
+                  //      local_dof_indices[i] = mg_constrained_dofs->get_level_constraint_matrix(level-1).
+                  //                             get_constraint_entries(local_dof_indices[i])->front().first;
+                  //   }
 
                   const IndexSet &owned_level_dofs_l0 = mg_dof.locally_owned_mg_dofs(0);
                   for (unsigned int i=0; i<local_dof_indices.size(); ++i)
