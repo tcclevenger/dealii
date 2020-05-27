@@ -59,7 +59,7 @@ namespace MatrixFreeTools
                  Number,
                  VectorizedArrayType> &                 phi,
     LinearAlgebra::distributed::Vector<Number> &        diagonal_global,
-    const std::function<void()> &                       local_vmult)
+    const std::function<void(const unsigned int)> &     local_vmult)
   {
     matrix_free.initialize_dof_vector(diagonal_global);
 
@@ -336,7 +336,7 @@ namespace MatrixFreeTools
                 for (unsigned int j = 0; j < phi.dofs_per_cell; ++j)
                   phi.begin_dof_values()[j] = static_cast<Number>(i == j);
 
-                local_vmult();
+                local_vmult(cell);
 
                 const auto ith_column = phi.begin_dof_values();
 
