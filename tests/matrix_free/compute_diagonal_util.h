@@ -83,7 +83,7 @@ public:
       MatrixFreeTools::compute_diagonal(matrix_free,
                                         phi,
                                         diagonal_global,
-                                        [&]() { this->cell_operation(phi); });
+                                        [&](const unsigned int /*cell*/) { this->cell_operation(phi); });
 
       diagonal_global.print(deallog.get_file_stream());
       deallog << diagonal_global.l2_norm() << std::endl;
