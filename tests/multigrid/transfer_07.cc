@@ -14,7 +14,8 @@
 // ---------------------------------------------------------------------
 
 
-// Check MGTransferMatrixFree with custom user constraints
+// Check MGTransferMatrixFree and MGTransferPrebuilt
+// with custom user constraints
 
 #include <deal.II/distributed/tria.h>
 
@@ -70,26 +71,44 @@ check()
   mg_constrained_dofs.add_user_constraints(0, user_constraints);
 
   // build matrix-free transfer
-  MGTransferMatrixFree<dim, double> transfer(mg_constrained_dofs);
-  transfer.build(mgdof);
+  MGTransferMatrixFree<dim, double> transfer_mf(mg_constrained_dofs);
+  transfer_mf.build(mgdof);
 
+  // build prebuilt transfer
+  MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>> transfer_pb(
+    mg_constrained_dofs);
+  transfer_pb.build(mgdof);
+
+  deallog << "SRC Vector" << std::endl;
   LinearAlgebra::distributed::Vector<double> src_level_0(mgdof.n_dofs(0));
   for (unsigned int i = 0; i < mgdof.n_dofs(0); ++i)
     deallog << src_level_0(i) << " ";
-  deallog << std::endl;
+  deallog << std::endl << std::endl;
 
-  LinearAlgebra::distributed::Vector<double> dst_level_1(mgdof.n_dofs(1));
-  transfer.prolongate(1, dst_level_1, src_level_0);
-  for (unsigned int i = 0; i < mgdof.n_dofs(1); ++i)
-    deallog << dst_level_1(i) << " ";
-  deallog << std::endl;
+  {
+    LinearAlgebra::distributed::Vector<double> dst_level_1(mgdof.n_dofs(1));
+    transfer_mf.prolongate(1, dst_level_1, src_level_0);
+    deallog << "MGTransferMatrixFree" << std::endl;
+    for (unsigned int i = 0; i < mgdof.n_dofs(1); ++i)
+      deallog << dst_level_1(i) << " ";
+    deallog << std::endl;
+  }
+  {
+    LinearAlgebra::distributed::Vector<double> dst_level_1(mgdof.n_dofs(1));
+    transfer_pb.prolongate(1, dst_level_1, src_level_0);
+    deallog << "MGTransferPrebuilt" << std::endl;
+    for (unsigned int i = 0; i < mgdof.n_dofs(1); ++i)
+      deallog << dst_level_1(i) << " ";
+    deallog << std::endl;
+  }
 }
 
 
 int
-main()
+main(int argc, char **argv)
 {
-  initlog();
+  Utilities::MPI::MPI_InitFinalize mpi(argc, argv, 1);
+  mpi_initlog();
 
   check<2>();
   deallog << std::endl;
