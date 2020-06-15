@@ -23,10 +23,7 @@
 
 #include <deal.II/grid/grid_generator.h>
 
-#include <deal.II/lac/la_parallel_vector.h>
-
 #include <deal.II/multigrid/mg_transfer.h>
-#include <deal.II/multigrid/mg_transfer_matrix_free.h>
 
 #include "../tests.h"
 
@@ -70,33 +67,20 @@ check()
   user_constraints.close();
   mg_constrained_dofs.add_user_constraints(0, user_constraints);
 
-  // build matrix-free transfer
-  MGTransferMatrixFree<dim, double> transfer_mf(mg_constrained_dofs);
-  transfer_mf.build(mgdof);
-
-  // build prebuilt transfer
   MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>> transfer_pb(
     mg_constrained_dofs);
   transfer_pb.build(mgdof);
 
   deallog << "SRC Vector" << std::endl;
-  LinearAlgebra::distributed::Vector<double> src_level_0(mgdof.n_dofs(0));
+  Vector<double> src_level_0(mgdof.n_dofs(0));
   for (unsigned int i = 0; i < mgdof.n_dofs(0); ++i)
     deallog << src_level_0(i) << " ";
   deallog << std::endl << std::endl;
 
   {
-    LinearAlgebra::distributed::Vector<double> dst_level_1(mgdof.n_dofs(1));
-    transfer_mf.prolongate(1, dst_level_1, src_level_0);
-    deallog << "MGTransferMatrixFree" << std::endl;
-    for (unsigned int i = 0; i < mgdof.n_dofs(1); ++i)
-      deallog << dst_level_1(i) << " ";
-    deallog << std::endl;
-  }
-  {
-    LinearAlgebra::distributed::Vector<double> dst_level_1(mgdof.n_dofs(1));
+    Vector<double> dst_level_1(mgdof.n_dofs(1));
     transfer_pb.prolongate(1, dst_level_1, src_level_0);
-    deallog << "MGTransferPrebuilt" << std::endl;
+    deallog << "DST Vector" << std::endl;
     for (unsigned int i = 0; i < mgdof.n_dofs(1); ++i)
       deallog << dst_level_1(i) << " ";
     deallog << std::endl;
