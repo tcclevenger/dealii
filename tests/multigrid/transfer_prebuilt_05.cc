@@ -67,7 +67,7 @@ check()
   user_constraints.close();
   mg_constrained_dofs.add_user_constraints(0, user_constraints);
 
-  MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>> transfer_pb(
+  MGTransferPrebuilt<Vector<double>> transfer_pb(
     mg_constrained_dofs);
   transfer_pb.build(mgdof);
 
