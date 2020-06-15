@@ -105,10 +105,9 @@ check()
 
 
 int
-main(int argc, char **argv)
+main()
 {
-  Utilities::MPI::MPI_InitFinalize mpi(argc, argv, 1);
-  mpi_initlog();
+  initlog();
 
   check<2>();
   deallog << std::endl;
